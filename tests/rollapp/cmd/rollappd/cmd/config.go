@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"time"
+
 	cmtcfg "github.com/cometbft/cometbft/config"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
+
+	oracleconfig "github.com/skip-mev/connect/v2/oracle/config"
 )
 
 // initCometBFTConfig helps to override default CometBFT Config values.
@@ -23,6 +27,8 @@ func initAppConfig() (string, interface{}) {
 	// The following code snippet is just for reference.
 	type CustomAppConfig struct {
 		serverconfig.Config `mapstructure:",squash"`
+
+		Oracle oracleconfig.AppConfig `mapstructure:",squash"`
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -45,9 +51,17 @@ func initAppConfig() (string, interface{}) {
 
 	customAppConfig := CustomAppConfig{
 		Config: *srvCfg,
+		Oracle: oracleconfig.AppConfig{
+			Enabled:        true,
+			OracleAddress:  "localhost:8080",
+			ClientTimeout:  250 * time.Millisecond,
+			MetricsEnabled: true,
+			PriceTTL:       5 * time.Second,
+			Interval:       1 * time.Second,
+		},
 	}
 
-	customAppTemplate := serverconfig.DefaultConfigTemplate
+	customAppTemplate := serverconfig.DefaultConfigTemplate + oracleconfig.DefaultConfigTemplate
 	// Edit the default template file
 	//
 	// customAppTemplate := serverconfig.DefaultConfigTemplate + `

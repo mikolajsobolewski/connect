@@ -53,6 +53,11 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"google.golang.org/protobuf/types/known/durationpb"
 
+	marketmapmodulev1 "github.com/skip-mev/connect/v2/api/slinky/marketmap/module/v1"
+	oraclemodulev1 "github.com/skip-mev/connect/v2/api/slinky/oracle/module/v1"
+	marketmaptypes "github.com/skip-mev/connect/v2/x/marketmap/types"
+	oracletypes "github.com/skip-mev/connect/v2/x/oracle/types"
+
 	rollappmodulev1 "rollapp/api/rollapp/rollapp/module"
 	_ "rollapp/x/rollapp/module" // import for side-effects
 	rollappmoduletypes "rollapp/x/rollapp/types"
@@ -93,6 +98,9 @@ var (
 		consensustypes.ModuleName,
 		circuittypes.ModuleName,
 		// chain modules
+		oracletypes.ModuleName,
+		// market map genesis must be called AFTER all consuming modules (i.e. x/oracle, etc.)
+		marketmaptypes.ModuleName,
 		rollappmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	}
@@ -117,6 +125,8 @@ var (
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
+		oracletypes.ModuleName,
+		marketmaptypes.ModuleName,
 		// chain modules
 		rollappmoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
@@ -138,6 +148,8 @@ var (
 		ibcfeetypes.ModuleName,
 		// chain modules
 		rollappmoduletypes.ModuleName,
+		oracletypes.ModuleName,
+		marketmaptypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	}
 
@@ -296,6 +308,16 @@ var (
 			{
 				Name:   rollappmoduletypes.ModuleName,
 				Config: appconfig.WrapAny(&rollappmodulev1.Module{}),
+			},
+			{
+				Name: marketmaptypes.ModuleName,
+				Config: appconfig.WrapAny(&marketmapmodulev1.Module{
+					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				}),
+			},
+			{
+				Name:   oracletypes.ModuleName,
+				Config: appconfig.WrapAny(&oraclemodulev1.Module{}),
 			},
 			// this line is used by starport scaffolding # stargate/app/moduleConfig
 		},

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"io"
 
 	_ "cosmossdk.io/api/cosmos/tx/config/v1" // import for side-effects
@@ -74,6 +75,13 @@ import (
 	ibcfeekeeper "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v8/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	"github.com/skip-mev/connect/v2/x/marketmap/types"
+	types2 "github.com/skip-mev/connect/v2/x/oracle/types"
+
+	_ "github.com/skip-mev/connect/v2/x/marketmap"
+	marketmapkeeper "github.com/skip-mev/connect/v2/x/marketmap/keeper"
+	_ "github.com/skip-mev/connect/v2/x/oracle"
+	oraclekeeper "github.com/skip-mev/connect/v2/x/oracle/keeper"
 
 	rollappmodulekeeper "rollapp/x/rollapp/keeper"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
@@ -140,6 +148,10 @@ type App struct {
 	ScopedICAControllerKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper       capabilitykeeper.ScopedKeeper
 	ScopedKeepers             map[string]capabilitykeeper.ScopedKeeper
+
+	// connect
+	OracleKeeper    *oraclekeeper.Keeper
+	MarketMapKeeper *marketmapkeeper.Keeper
 
 	RollappKeeper rollappmodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
@@ -246,6 +258,8 @@ func New(
 		&app.GroupKeeper,
 		&app.CircuitBreakerKeeper,
 		&app.RollappKeeper,
+		&app.MarketMapKeeper,
+		&app.OracleKeeper,
 		// this line is used by starport scaffolding # stargate/app/keeperDefinition
 	); err != nil {
 		panic(err)
@@ -257,6 +271,15 @@ func New(
 
 	// build app
 	app.App = appBuilder.Build(db, traceStore, baseAppOptions...)
+
+	app.MarketMapKeeper.SetHooks(app.OracleKeeper.Hooks())
+
+	// oracle initialization
+	client, metrics, err := app.initializeOracle(appOpts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize oracle client and metrics: %w", err)
+	}
+	app.initializeABCIExtensions(client, metrics)
 
 	// register legacy modules
 	if err := app.registerIBCModules(appOpts); err != nil {
@@ -285,6 +308,13 @@ func New(
 	// The upgrade module will automatically handle de-duplication of the module version map.
 	app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 		if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap()); err != nil {
+			return nil, err
+		}
+		req.ConsensusParams.Abci.VoteExtensionsEnableHeight = 2
+		app.OracleKeeper.InitGenesis(ctx, *types2.DefaultGenesisState())
+		app.MarketMapKeeper.InitGenesis(ctx, *types.DefaultGenesisState())
+		err := app.setupMarkets(ctx)
+		if err != nil {
 			return nil, err
 		}
 		return app.App.InitChainer(ctx, req)

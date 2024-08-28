@@ -16,18 +16,14 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
-	confixcmd "cosmossdk.io/tools/confix/cmd"
 
 	"github.com/skip-mev/connect/v2/tests/simapp"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
-	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
-	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -39,13 +35,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	oracleconfig "github.com/skip-mev/connect/v2/oracle/config"
-
-	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
-	rollconf "github.com/rollkit/rollkit/config"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
@@ -223,25 +215,7 @@ func initRootCmd(
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 
-	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
-		NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
-		debug.Cmd(),
-		confixcmd.ConfigCommand(),
-		pruning.Cmd(newApp, simapp.DefaultNodeHome),
-		snapshot.Cmd(newApp),
-	)
-
-	server.AddCommandsWithStartCmdOptions(
-		rootCmd,
-		simapp.DefaultNodeHome,
-		newApp,
-		appExport,
-		server.StartCmdOptions{
-			AddFlags:            rollconf.AddFlags,
-			StartCommandHandler: rollserv.StartHandler[servertypes.Application],
-		},
-	)
+	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -250,6 +224,10 @@ func initRootCmd(
 		txCommand(),
 		keys.Commands(),
 	)
+}
+
+func addModuleInitFlags(cmd *cobra.Command) {
+	cmd.Flags().Bool(flagCrisisDummy, true, "dummy flag for crisis module")
 }
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter.
