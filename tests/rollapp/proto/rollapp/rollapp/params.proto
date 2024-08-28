@@ -1,0 +1,15 @@
+syntax = "proto3";
+package rollapp.rollapp;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "rollapp/x/rollapp/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (amino.name) = "rollapp/x/rollapp/Params";
+  option (gogoproto.equal) = true;
+
+  
+}

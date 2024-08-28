@@ -1,0 +1,17 @@
+syntax = "proto3";
+package rollapp.rollapp;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "rollapp/rollapp/params.proto";
+
+option go_package = "rollapp/x/rollapp/types";
+
+// GenesisState defines the rollapp module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+}
