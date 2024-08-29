@@ -20,6 +20,7 @@ import (
 	_ "cosmossdk.io/x/upgrade"    // import for side-effects
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
 	abci "github.com/cometbft/cometbft/abci/types"
+	types3 "github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -44,6 +45,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	_ "github.com/cosmos/cosmos-sdk/x/consensus" // import for side-effects
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	_ "github.com/cosmos/cosmos-sdk/x/crisis" // import for side-effects
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	_ "github.com/cosmos/cosmos-sdk/x/distribution" // import for side-effects
@@ -307,24 +309,61 @@ func New(
 	// Manually set the module version map as shown below.
 	// The upgrade module will automatically handle de-duplication of the module version map.
 	app.SetInitChainer(func(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
+		app.Logger().Info("SETTING CONSENSUS PARAMS")
 		if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.ModuleManager.GetVersionMap()); err != nil {
 			return nil, err
 		}
-		req.ConsensusParams.Abci.VoteExtensionsEnableHeight = 2
-		app.OracleKeeper.InitGenesis(ctx, *types2.DefaultGenesisState())
-		app.MarketMapKeeper.InitGenesis(ctx, *types.DefaultGenesisState())
-		err := app.setupMarkets(ctx)
+		consensusParams, err := app.ConsensusParamsKeeper.Params(ctx, nil)
 		if err != nil {
 			return nil, err
 		}
+		consensusParams.Params.Abci = &types3.ABCIParams{
+			VoteExtensionsEnableHeight: 5, // must be greater than 1
+		}
+		_, err = app.ConsensusParamsKeeper.UpdateParams(ctx, &consensustypes.MsgUpdateParams{
+			Authority: app.ConsensusParamsKeeper.GetAuthority(),
+			Block:     consensusParams.Params.Block,
+			Evidence:  consensusParams.Params.Evidence,
+			Validator: consensusParams.Params.Validator,
+			Abci:      consensusParams.Params.Abci,
+		})
+		if err != nil {
+			return nil, err
+		}
+		app.OracleKeeper.InitGenesis(ctx, *types2.DefaultGenesisState())
+		app.MarketMapKeeper.InitGenesis(ctx, *types.DefaultGenesisState())
+		err = app.setupMarkets(ctx)
+		if err != nil {
+			return nil, err
+		}
+		app.Logger().Info("DONE SETTING CONSENSUS PARAMS")
 		return app.App.InitChainer(ctx, req)
 	})
+	app.setABCIMethods()
 
 	if err := app.Load(loadLatest); err != nil {
 		return nil, err
 	}
 
 	return app, nil
+}
+
+func (app *App) setABCIMethods() {
+	app.SetEndBlocker(func(context sdk.Context) (sdk.EndBlock, error) {
+		app.Logger().Info("INSIDE ABCI METHOD 1")
+		fmt.Println("INSIDE ABCI METHOD 2")
+		return sdk.EndBlock{}, nil
+	})
+	app.SetPreBlocker(func(context sdk.Context, block *abci.RequestFinalizeBlock) (*sdk.ResponsePreBlock, error) {
+		app.Logger().Info("INSIDE ABCI METHOD 2")
+		fmt.Println("INSIDE ABCI METHOD 2")
+		return &sdk.ResponsePreBlock{}, nil
+	})
+	app.SetBeginBlocker(func(context sdk.Context) (sdk.BeginBlock, error) {
+		app.Logger().Info("INSIDE ABCI METHOD 3")
+		fmt.Println("INSIDE ABCI METHOD 3")
+		return sdk.BeginBlock{}, nil
+	})
 }
 
 // LegacyAmino returns App's amino codec.

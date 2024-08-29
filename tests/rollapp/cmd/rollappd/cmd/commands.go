@@ -4,6 +4,9 @@ import (
 	"errors"
 	"io"
 
+	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
+	rollconf "github.com/rollkit/rollkit/config"
+
 	"cosmossdk.io/log"
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 	dbm "github.com/cosmos/cosmos-db"
@@ -20,8 +23,6 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
-	rollconf "github.com/rollkit/rollkit/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -41,6 +42,12 @@ func initRootCmd(
 		snapshot.Cmd(newApp),
 	)
 
+	//server.AddCommands(
+	//	rootCmd,
+	//	app.DefaultNodeHome,
+	//	newApp, appExport,
+	//	addModuleInitFlags,
+	//)
 	server.AddCommandsWithStartCmdOptions(
 		rootCmd,
 		app.DefaultNodeHome,

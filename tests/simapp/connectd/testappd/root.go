@@ -8,8 +8,13 @@ import (
 	"os"
 	"time"
 
+	confixcmd "cosmossdk.io/tools/confix/cmd"
 	cmtcfg "github.com/cometbft/cometbft/config"
 	dbm "github.com/cosmos/cosmos-db"
+	"github.com/cosmos/cosmos-sdk/client/debug"
+	"github.com/cosmos/cosmos-sdk/client/pruning"
+	"github.com/cosmos/cosmos-sdk/client/snapshot"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -217,6 +222,15 @@ func initRootCmd(
 ) {
 	cfg := sdk.GetConfig()
 	cfg.Seal()
+
+	rootCmd.AddCommand(
+		genutilcli.InitCmd(basicManager, simapp.DefaultNodeHome),
+		NewTestnetCmd(basicManager, banktypes.GenesisBalancesIterator{}),
+		debug.Cmd(),
+		confixcmd.ConfigCommand(),
+		pruning.Cmd(newApp, simapp.DefaultNodeHome),
+		snapshot.Cmd(newApp),
+	)
 
 	server.AddCommandsWithStartCmdOptions(
 		rootCmd,
