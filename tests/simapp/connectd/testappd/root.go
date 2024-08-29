@@ -227,6 +227,7 @@ func initRootCmd(
 			StartCommandHandler: rollserv.StartHandler[servertypes.Application],
 		},
 	)
+	// server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
