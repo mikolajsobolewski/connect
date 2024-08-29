@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	localhost     = "localhost"
+	localhost     = "127.0.0.1"
 	port          = "8080"
 	timeout       = 1 * time.Second
 	delay         = 20 * time.Second
