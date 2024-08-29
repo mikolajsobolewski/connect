@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"cosmossdk.io/depinject"
@@ -13,6 +14,8 @@ import (
 	circuitkeeper "cosmossdk.io/x/circuit/keeper"
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	cometabci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/proto/tendermint/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -37,6 +40,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -63,14 +67,17 @@ import (
 	compression "github.com/skip-mev/connect/v2/abci/strategies/codec"
 	"github.com/skip-mev/connect/v2/abci/strategies/currencypair"
 	"github.com/skip-mev/connect/v2/abci/ve"
+	"github.com/skip-mev/connect/v2/cmd/constants/marketmaps"
 	oracleconfig "github.com/skip-mev/connect/v2/oracle/config"
 	"github.com/skip-mev/connect/v2/pkg/math/voteweighted"
 	oracleclient "github.com/skip-mev/connect/v2/service/clients/oracle"
 	servicemetrics "github.com/skip-mev/connect/v2/service/metrics"
 	marketmapmodule "github.com/skip-mev/connect/v2/x/marketmap"
 	marketmapkeeper "github.com/skip-mev/connect/v2/x/marketmap/keeper"
+	marketmaptypes "github.com/skip-mev/connect/v2/x/marketmap/types"
 	"github.com/skip-mev/connect/v2/x/oracle"
 	oraclekeeper "github.com/skip-mev/connect/v2/x/oracle/keeper"
+	oracletypes "github.com/skip-mev/connect/v2/x/oracle/types"
 )
 
 const (
@@ -417,16 +424,72 @@ func NewSimApp(
 	// However, when registering a module manually (i.e. that does not support app wiring), the module version map
 	// must be set manually as follows. The upgrade module will de-duplicate the module version map.
 	//
-	// app.SetInitChainer(func(ctx sdk.Context, req *cometabci.RequestInitChain) (*cometabci.ResponseInitChain, error) {
-	// 	req.ConsensusParams.Abci.VoteExtensionsEnableHeight = 2
-	// 	return app.App.InitChainer(ctx, req)
-	// })
+	app.SetInitChainer(func(ctx sdk.Context, req *cometabci.RequestInitChain) (*cometabci.ResponseInitChain, error) {
+		consensusParams, err := app.ConsensusParamsKeeper.Params(ctx, nil)
+		if err != nil {
+			return nil, err
+		}
+		consensusParams.Params.Abci = &types.ABCIParams{
+			VoteExtensionsEnableHeight: 5, // must be greater than 1
+		}
+		_, err = app.ConsensusParamsKeeper.UpdateParams(ctx, &consensustypes.MsgUpdateParams{
+			Authority: app.ConsensusParamsKeeper.GetAuthority(),
+			Block:     consensusParams.Params.Block,
+			Evidence:  consensusParams.Params.Evidence,
+			Validator: consensusParams.Params.Validator,
+			Abci:      consensusParams.Params.Abci,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		// initialize module state
+		app.OracleKeeper.InitGenesis(ctx, *oracletypes.DefaultGenesisState())
+		app.MarketMapKeeper.InitGenesis(ctx, *marketmaptypes.DefaultGenesisState())
+
+		// initialize markets
+		err = app.setupMarkets(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return app.App.InitChainer(ctx, req)
+	})
 
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)
 	}
 
 	return app
+}
+
+func (app *SimApp) setupMarkets(ctx sdk.Context) error {
+	// add core markets
+	coreMarkets := marketmaps.CoreMarketMap
+	markets := coreMarkets.Markets
+
+	// sort keys so we can deterministically iterate over map items.
+	keys := make([]string, 0, len(markets))
+	for name := range markets {
+		keys = append(keys, name)
+	}
+	slices.Sort(keys)
+
+	for _, marketName := range keys {
+		// create market
+		market := markets[marketName]
+		err := app.MarketMapKeeper.CreateMarket(ctx, market)
+		if err != nil {
+			return err
+		}
+
+		// invoke hooks. this syncs the market to x/oracle.
+		err = app.MarketMapKeeper.Hooks().AfterMarketCreated(ctx, market)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Close closes the underlying baseapp, the oracle service, and the prometheus server if required.

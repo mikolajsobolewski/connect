@@ -43,6 +43,9 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
 	oracleconfig "github.com/skip-mev/connect/v2/oracle/config"
+
+	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
+	rollconf "github.com/rollkit/rollkit/config"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
@@ -229,7 +232,15 @@ func initRootCmd(
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommandsWithStartCmdOptions(
+		rootCmd,
+		simapp.DefaultNodeHome,
+		newApp, appExport,
+		server.StartCmdOptions{
+			AddFlags:            rollconf.AddFlags,
+			StartCommandHandler: rollserv.StartHandler[servertypes.Application],
+		},
+	)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
