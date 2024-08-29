@@ -1,0 +1,4 @@
+entrypoint = "/Users/tyler/Documents/Dev/skip/slinky/tests/rollapp/cmd/rollappd/main.go"
+
+[chain]
+  config_dir = "/Users/tyler/.rollapp"

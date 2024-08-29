@@ -1,0 +1,4 @@
+entrypoint = "/Users/tyler/Documents/Dev/skip/slinky/tests/simapp/connectd/main.go"
+
+[chain]
+  config_dir = "/Users/tyler/Documents/Dev/skip/slinky/tests/.connectd"
