@@ -53,7 +53,7 @@ func initAppConfig() (string, interface{}) {
 		Config: *srvCfg,
 		Oracle: oracleconfig.AppConfig{
 			Enabled:        true,
-			OracleAddress:  "localhost:8080",
+			OracleAddress:  "0.0.0.0:8080",
 			ClientTimeout:  250 * time.Millisecond,
 			MetricsEnabled: true,
 			PriceTTL:       5 * time.Second,

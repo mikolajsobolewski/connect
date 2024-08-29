@@ -13,6 +13,7 @@ import (
 	circuitkeeper "cosmossdk.io/x/circuit/keeper"
 	"cosmossdk.io/x/upgrade"
 	upgradekeeper "cosmossdk.io/x/upgrade/keeper"
+	cometabci "github.com/cometbft/cometbft/abci/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -417,10 +418,23 @@ func NewSimApp(
 	// However, when registering a module manually (i.e. that does not support app wiring), the module version map
 	// must be set manually as follows. The upgrade module will de-duplicate the module version map.
 	//
-	// app.SetInitChainer(func(ctx sdk.Context, req *cometabci.RequestInitChain) (*cometabci.ResponseInitChain, error) {
-	// 	req.ConsensusParams.Abci.VoteExtensionsEnableHeight = 2
-	// 	return app.App.InitChainer(ctx, req)
-	// })
+	app.SetInitChainer(func(ctx sdk.Context, req *cometabci.RequestInitChain) (*cometabci.ResponseInitChain, error) {
+		//p, err := app.ConsensusParamsKeeper.Params(ctx, &types.QueryParamsRequest{})
+		//if err != nil {
+		//	panic(err)
+		//}
+		//consensusParams := p
+		//consensusParams.Params.Abci.VoteExtensionsEnableHeight = 5
+		//_, err = app.ConsensusParamsKeeper.UpdateParams(ctx, &types.MsgUpdateParams{
+		//	Authority: app.ConsensusParamsKeeper.GetAuthority(),
+		//	Block:     consensusParams.Params.Block,
+		//	Evidence:  consensusParams.Params.Evidence,
+		//	Validator: consensusParams.Params.Validator,
+		//	Abci:      consensusParams.Params.Abci,
+		//})
+		req.ConsensusParams.Abci.VoteExtensionsEnableHeight = 5
+		return app.App.InitChainer(ctx, req)
+	})
 
 	if err := app.Load(loadLatest); err != nil {
 		panic(err)

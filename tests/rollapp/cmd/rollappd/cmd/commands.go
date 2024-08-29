@@ -20,6 +20,8 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
+	rollconf "github.com/rollkit/rollkit/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -39,7 +41,15 @@ func initRootCmd(
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, app.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommandsWithStartCmdOptions(
+		rootCmd,
+		app.DefaultNodeHome,
+		newApp, appExport,
+		server.StartCmdOptions{
+			AddFlags:            rollconf.AddFlags,
+			StartCommandHandler: rollserv.StartHandler[servertypes.Application],
+		},
+	)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(

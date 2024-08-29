@@ -37,6 +37,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
+	rollserv "github.com/rollkit/cosmos-sdk-starter/server"
+	rollconf "github.com/rollkit/rollkit/config"
+
 	oracleconfig "github.com/skip-mev/connect/v2/oracle/config"
 )
 
@@ -215,7 +218,15 @@ func initRootCmd(
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 
-	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	server.AddCommandsWithStartCmdOptions(
+		rootCmd,
+		simapp.DefaultNodeHome,
+		newApp, appExport,
+		server.StartCmdOptions{
+			AddFlags:            rollconf.AddFlags,
+			StartCommandHandler: rollserv.StartHandler[servertypes.Application],
+		},
+	)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(

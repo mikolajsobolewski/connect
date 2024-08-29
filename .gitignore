@@ -39,3 +39,6 @@ run.go
 
 *.log*
 oracle.json
+
+tests/rollapp/entrypoint
+tests/simapp/entrypoint

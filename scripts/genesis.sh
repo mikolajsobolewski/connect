@@ -18,7 +18,7 @@ NUM_MARKETS=$(echo "$MARKETS" | jq '.markets | length + 1')
 ./build/connectd genesis gentx validator 1000000000stake --chain-id skip-1 --home "$HOMEDIR" --keyring-backend test
 ./build/connectd genesis collect-gentxs --home "$HOMEDIR"
 
-jq '.consensus["params"]["abci"]["vote_extensions_enable_height"] = "2"' "$GENESIS" > "$GENESIS_TMP" && mv "$GENESIS_TMP" "$GENESIS"
+# jq '.consensus["params"]["abci"]["vote_extensions_enable_height"] = "2"' "$GENESIS" > "$GENESIS_TMP" && mv "$GENESIS_TMP" "$GENESIS"
 NUM_MARKETS=$NUM_MARKETS; jq --arg num "$NUM_MARKETS" '.app_state["oracle"]["next_id"] = $num' "$GENESIS" > "$GENESIS_TMP" && mv "$GENESIS_TMP" "$GENESIS"
 MARKETS=$MARKETS; jq --arg markets "$MARKETS" '.app_state["marketmap"]["market_map"] = ($markets | fromjson)' "$GENESIS" > "$GENESIS_TMP" && mv "$GENESIS_TMP" "$GENESIS"
 MARKETS=$MARKETS; jq --arg markets "$MARKETS" '.app_state["oracle"]["currency_pair_genesis"] += [$markets | fromjson | .markets | values | .[].ticker.currency_pair | {"currency_pair": {"Base": .Base, "Quote": .Quote}, "currency_pair_price": null, "nonce": 0} ]' "$GENESIS" > "$GENESIS_TMP" && mv "$GENESIS_TMP" "$GENESIS"
