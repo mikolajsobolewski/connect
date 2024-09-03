@@ -1,6 +1,7 @@
 {
   "$schema": "https://mintlify.com/schema.json",
   "name": "Skip",
+  "versions": ["v1.0.10"],
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
@@ -41,49 +42,54 @@
   "navigation": [ 
     {
       "group": "General",
+      "version": "v1.0.10",
       "pages": [
-        "introduction"
+        "general/v1.0.10/introduction"
       ]
     },
     {
       "group": "Validators",
+      "version": "v1.0.10",
       "pages": [
-        "validators/quickstart",
-        "validators/advanced-setups",
-        "validators/configuration",
-        "validators/faq"
+        "validators/v1.0.10/quickstart",
+        "validators/v1.0.10/advanced-setups",
+        "validators/v1.0.10/configuration",
+        "validators/v1.0.10/faq"
       ]
     },
     {
       "group": "Metrics",
+      "version": "v1.0.10",
       "pages": [
-        "metrics/overview",
-        "metrics/setup",
-        "metrics/oracle-reference",
-        "metrics/application-reference"
+        "metrics/v1.0.10/overview",
+        "metrics/v1.0.10/setup",
+        "metrics/v1.0.10/oracle-reference",
+        "metrics/v1.0.10/application-reference"
       ]
     },
     {
       "group": "Developers",
+      "version": "v1.0.10",
       "pages": [
-        "developers/integration",
-        "developers/high-level",
-        "developers/neutron-sdk",
-        "developers/providers",
+        "developers/v1.0.10/integration",
+        "developers/v1.0.10/high-level",
+        "developers/v1.0.10/neutron-sdk",
+        "developers/v1.0.10/providers",
         {
           "group": "Modules",
           "icon": "layer-group",
           "pages": [
-            "developers/modules/marketmap"
+            "developers/v1.0.10/modules/marketmap"
           ]
         }
       ]
     },
     {
       "group": "Learn",
+      "version": "v1.0.10",
       "pages": [
-        "learn/architecture",
-        "learn/security"
+        "learn/v1.0.10/architecture",
+        "learn/v1.0.10/security"
       ]
     }
   ],
