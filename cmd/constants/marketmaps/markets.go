@@ -9564,6 +9564,48 @@ var (
       }
    }
 }`
+
+	UniswapV3EthMarketMap mmtypes.MarketMap
+
+	UniswapV3EthMarketMapJSON = `
+{
+	"markets": {
+		"1CAT/USD": {
+        	"ticker": {
+          		"currency_pair": {
+            		"Base": "1CAT",
+            		"Quote": "USD"
+          		},
+          		"decimals": "12",
+          		"min_provider_count": "1",
+          		"enabled": false,
+          		"metadata_JSON": "{\"reference_price\":1883195599,\"liquidity\":8280,\"aggregate_ids\":[{\"venue\":\"coinmarketcap\",\"ID\":\"28791\"}]}"
+        	},
+        	"provider_configs": [
+          	{
+            	"name": "uniswapv3_api-ethereum",
+            	"off_chain_ticker": "1CAT,uniswap_v3,0x508e00d5cef397b02d260d035e5ee80775e4c821/WETH,uniswap_v3,0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            	"normalize_by_pair": {
+              		"Base": "WETH,uniswap_v3,0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+              		"Quote": "USD"
+            	},
+            	"invert": false,
+            	"metadata_JSON": "{\"address\":\"0xae790e2a4785298cb18150f3dc4a60bd81fcd274\",\"base_decimals\":18,\"quote_decimals\":18,\"invert\":false}"
+          	},
+          	{
+            	"name": "gate_ws",
+            	"off_chain_ticker": "1CAT_USDT",
+            	"normalize_by_pair": {
+              		"Base": "USDT",
+              		"Quote": "USD"
+            	},
+				"invert": false,
+				"metadata_JSON": ""
+          	}
+        	]
+      	},
+	}
+}`
 )
 
 func init() {

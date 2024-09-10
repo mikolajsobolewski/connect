@@ -435,13 +435,13 @@ func runOracle() error {
 
 			_, err := validatorService.Run(ctx)
 			if err != nil {
-				logger.Error("failed to validate metrics", zap.Error(err))
+				logger.Error("failed to validate metrics - terminating process", zap.Error(err))
 
 				// kill the process
 				os.Exit(1)
 			}
 
-			logger.Info("shutting down gracefully after validation")
+			logger.Info("shutting down gracefully after validation success...")
 		}(cancel)
 	}
 

@@ -17,9 +17,9 @@ APP_TOML ?= $(HOMEDIR)/config/app.toml
 CONFIG_TOML ?= $(HOMEDIR)/config/config.toml
 COVER_FILE ?= cover.out
 BENCHMARK_ITERS ?= 10
-USE_CORE_MARKETS ?= true
+USE_CORE_MARKETS ?= false
 USE_RAYDIUM_MARKETS ?= false
-USE_UNISWAPV3_BASE_MARKETS ?= false
+USE_UNISWAPV3_BASE_MARKETS ?= true
 USE_COINGECKO_MARKETS ?= false
 USE_COINMARKETCAP_MARKETS ?= false
 USE_OSMOSIS_MARKETS ?= false
@@ -52,9 +52,9 @@ BUILD_TAGS := -X github.com/skip-mev/connect/v2/cmd/build.Build=$(TAG)
 ###############################################################################
 
 build: tidy
-	go build -ldflags="$(BUILD_TAGS)" \
+	@go build -ldflags="$(BUILD_TAGS)" \
 	 -o ./build/ ./...
-	go build -ldflags="$(BUILD_TAGS)" \
+	@go build -ldflags="$(BUILD_TAGS)" \
      -o ./build/slinky ./cmd/connect
 
 run-oracle-client: build
