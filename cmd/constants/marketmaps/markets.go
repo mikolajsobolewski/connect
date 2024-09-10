@@ -13,7 +13,7 @@ var (
 	// the markets that are supported by CoinMarketCap.
 	CoinMarketCapMarketMap mmtypes.MarketMap
 	// CoinMarketCapMarketMapJSON is the JSON representation of the CoinMarketCap MarketMap that can be used
-	// to initialize for a genesis state or used by the sidecar as as static market map.
+	// to initialize for a genesis state or used by the sidecar as a static market map.
 	CoinMarketCapMarketMapJSON = `
 {
     "markets": {
@@ -1572,7 +1572,7 @@ var (
 	// the markets that are supported by Raydium.
 	RaydiumMarketMap mmtypes.MarketMap
 	// RaydiumMarketMapJSON is the JSON representation of the Raydium MarketMap that can be used
-	// to initialize for a genesis state or used by the sidecar as as static market map.
+	// to initialize for a genesis state or used by the sidecar as a static market map.
 	RaydiumMarketMapJSON = `
 {
   "markets": {
@@ -1876,24 +1876,6 @@ var (
             "Quote": "USD"
           },
           "metadata_JSON": "{\"base_token_vault\":{\"token_vault_address\":\"Fyp9Rhkxm3V5o7KGN6WzgCwqRZydBczNE8JniQ57YbjH\",\"token_decimals\":6},\"quote_token_vault\":{\"token_vault_address\":\"BU7otgLUAAyKsgzAf5TnBYTNFz6eRBWhBYv1h9MrZSzq\",\"token_decimals\":9},\"amm_info_address\":\"5AKR4Yt7jXpYZ9KLfH5f7GCpgRHFcnGcPuZKrsZSEops\",\"open_orders_address\":\"2wXY5PtMdvhNrQT6JfCTxBY7EeQRskBhifSoCCXCv2H4\"}"
-        }
-      ]
-    },
-    "BLUR/USD": {
-      "ticker": {
-        "currency_pair": {
-          "Base": "BLUR",
-          "Quote": "USD"
-        },
-        "decimals": 10,
-        "min_provider_count": 1,
-        "enabled": true,
-        "metadata_JSON": "{\"aggregate_ids\":[{\"venue\":\"coinmarketcap\",\"ID\":\"23121\"}]}"
-      },
-      "provider_configs": [
-        {
-          "name": "coinbase_ws",
-          "off_chain_ticker": "BLUR-USD"
         }
       ]
     },
@@ -4670,33 +4652,6 @@ var (
           },
           "invert": true,
           "metadata_JSON": "{\"base_token_vault\":{\"token_vault_address\":\"HLX4E1BbDfoX4e5rzhw7Wwd1pArPzXd8XdZ3DaBXY9BR\",\"token_decimals\":9},\"quote_token_vault\":{\"token_vault_address\":\"5vqxzbPytvVm58vPkA2WYWvoAYfa8AoxD9i1UXCdqzCN\",\"token_decimals\":6},\"amm_info_address\":\"59VtDHQrcDKswbaStjTsjNiqLngjX72UHFqChnpAb93p\",\"open_orders_address\":\"8Cv8eC4PscdjZmiN1v9oVU7KtDXLd6zbGJkiofjN2Jcf\"}"
-        }
-      ]
-    },
-    "PYUSD/USD": {
-      "ticker": {
-        "currency_pair": {
-          "Base": "PYUSD",
-          "Quote": "USD"
-        },
-        "decimals": 10,
-        "min_provider_count": 1,
-        "enabled": true,
-        "metadata_JSON": "{\"aggregate_ids\":[{\"venue\":\"coinmarketcap\",\"ID\":\"27772\"}]}"
-      },
-      "provider_configs": [
-        {
-          "name": "coinbase_ws",
-          "off_chain_ticker": "PYUSD-USD"
-        },
-        {
-          "name": "crypto_dot_com_ws",
-          "off_chain_ticker": "SOL_PYUSD",
-          "normalize_by_pair": {
-            "Base": "SOL",
-            "Quote": "USD"
-          },
-          "invert": true
         }
       ]
     },
