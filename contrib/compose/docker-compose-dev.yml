@@ -10,6 +10,7 @@ services:
     entrypoint: [
       "/usr/local/bin/scripts",
       "--use-core=$USE_CORE_MARKETS",
+      "--use-uniswap=$USE_UNISWAP_MARKETS",
       "--use-raydium=$USE_RAYDIUM_MARKETS",
       "--use-uniswapv3-base=$USE_UNISWAPV3_BASE_MARKETS",
       "--use-coingecko=$USE_COINGECKO_MARKETS",
@@ -22,6 +23,7 @@ services:
       - USE_CORE_MARKETS=${USE_CORE_MARKETS:-true}
       - USE_RAYDIUM_MARKETS=${USE_RAYDIUM_MARKETS:-false}
       - USE_UNISWAPV3_BASE_MARKETS=${USE_UNISWAPV3_BASE_MARKETS:-false}
+      - USE_UNISWAP=${USE_UNISWAP_MARKETS:-false}
       - USE_COINGECKO_MARKETS=${USE_COINGECKO_MARKETS:-false}
       - USE_COINMARKETCAP_MARKETS=${USE_COINMARKETCAP_MARKETS:-false}
       - USE_OSMOSIS_MARKETS=${USE_OSMOSIS_MARKETS:-false}

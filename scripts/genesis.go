@@ -23,6 +23,7 @@ var (
 	useCoinMarketCap = flag.Bool("use-coinmarketcap", false, "use coinmarketcap markets")
 	useOsmosis       = flag.Bool("use-osmosis", false, "use osmosis markets")
 	usePolymarket    = flag.Bool("use-polymarket", false, "use polymarket markets")
+	useUniswap       = flag.Bool("use-uniswap", false, "use uniswap markets")
 	tempFile         = flag.String("temp-file", "markets.json", "temporary file to store the market map")
 )
 
@@ -97,6 +98,16 @@ func main() {
 	if *usePolymarket {
 		fmt.Fprintf(flag.CommandLine.Output(), "Using polymarket markets\n")
 		marketMap = mergeMarketMaps(marketMap, marketmaps.PolymarketMarketMap)
+	}
+
+	if err := marketMap.ValidateBasic(); err != nil {
+		fmt.Fprintf(flag.CommandLine.Output(), "failed to validate market map: %s\n", err)
+		panic(err)
+	}
+
+	if *useUniswap {
+		fmt.Fprintf(flag.CommandLine.Output(), "Using uniswap markets\n")
+		marketMap = mergeMarketMaps(marketMap, marketmaps.UniswapV3EthMarketMap)
 	}
 
 	if err := marketMap.ValidateBasic(); err != nil {
