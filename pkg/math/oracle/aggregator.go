@@ -114,7 +114,7 @@ func (m *IndexPriceAggregator) AggregatePrices() {
 		// Scale the price to the target ticker's decimals.
 		scaledPrices[target.String()] = math.ScaleBigFloat(new(big.Float).Copy(price), target.Decimals)
 
-		m.logger.Debug(
+		m.logger.Info(
 			"calculated median price",
 			zap.String("target_ticker", ticker),
 			zap.String("unscaled_price", indexPrices[target.String()].String()),
@@ -170,7 +170,7 @@ func (m *IndexPriceAggregator) CalculateConvertedPrices(
 		}
 
 		convertedPrices = append(convertedPrices, adjustedPrice)
-		m.logger.Debug(
+		m.logger.Info(
 			"calculated converted price",
 			zap.String("target_ticker", market.Ticker.String()),
 			zap.String("price", adjustedPrice.String()),

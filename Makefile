@@ -17,14 +17,14 @@ APP_TOML ?= $(HOMEDIR)/config/app.toml
 CONFIG_TOML ?= $(HOMEDIR)/config/config.toml
 COVER_FILE ?= cover.out
 BENCHMARK_ITERS ?= 10
-USE_CORE_MARKETS := true
+USE_CORE_MARKETS := false
 USE_RAYDIUM_MARKETS := false
 USE_UNISWAPV3_BASE_MARKETS := false
 USE_COINGECKO_MARKETS := false
 USE_COINMARKETCAP_MARKETS := false
 USE_OSMOSIS_MARKETS := false
 USE_POLYMARKET_MARKETS := false
-USE_UNISWAP_MARKETS := false
+USE_UNISWAP_MARKETS := true
 SCRIPT_DIR := $(CURDIR)/scripts
 DEV_COMPOSE ?= $(CURDIR)/contrib/compose/docker-compose-dev.yml
 
