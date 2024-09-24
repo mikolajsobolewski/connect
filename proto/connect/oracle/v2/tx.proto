@@ -59,13 +59,15 @@ message MsgRemoveCurrencyPairs {
 
   option (gogoproto.equal) = false;
 
+  float bar = 1;
+
   // authority is the address of the account that is authorized to update the
   // x/oracle's CurrencyPairs
-  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string authority = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 
   // currency_pair_ids are the stringified representation of a currency-pairs
   // (base/quote) to be removed from the module's state
-  repeated string currency_pair_ids = 2;
+  repeated string currency_pair_ids = 3;
 }
 
 message MsgRemoveCurrencyPairsResponse {}
